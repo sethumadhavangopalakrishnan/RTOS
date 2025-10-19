@@ -1,0 +1,69 @@
+Problem Statement 1
+ Problem Statement 1
+ A Real Time Operating System is often required when an embedded system performs various event driven functionalities and FreeRTOS is one of the most ubiquitous
+ Real Time Operating Systems for embedded systems. This assignment involves you showcasing the know-how (or the ability to gather said know-how) of the basic
+ intricacies of using RTOS.
+ Consider the following Tasks and its corresponding Task Handle:
+ Consider the following Tasks and its corresponding Task Handle:
+ Task Prototype
+ Task Prototype
+ void ExampleTask1(void
+ *pV);
+ Task Handle
+ Task Handle
+ TaskHandle_t
+ TaskHandle_1;
+ void ExampleTask2(void
+ *pV);
+ TaskHandle_t
+ TaskHandle_2;
+ Consider the following Queue and its properties:
+ Consider the following Queue and its properties:
+ Property
+ Property
+ Value
+ Value
+ QueueHandle QueueHandle_t Queue1;
+ Size of Queue 5
+ Data Type
+ Data_t
+ Definition of Data_t
+ Definition of Data_t
+ typdef struct{
+ uint8_t dataID;
+ int32_t DataValue;
+ } Data_t;
+ What is to be done:
+ What is to be done:
+ Create Tasks ExampleTask1
+ ExampleTask1 and ExampleTask2
+ Create Queue Queue1
+ ExampleTask2 as per above prototypes and handles. Priority levels of the task at your discretion.
+ ExampleTask1 sends data to Queue1
+ Queue1 with the above properties mentioned (FreeRTOS Queue).
+ ExampleTask1
+ Queue1 at a rate of once every 500ms. The delay between each send needs to be exact. The members of the structure are
+ populated by global variables G_DataID;
+ G_DataID; and G_DataValue;
+ ExampleTask2
+ ExampleTask2 takes data from Queue2
+ G_DataValue; Assume that these variables are updated elsewhere.
+ Queue2 whenever data is available, and applies the following logic to the data gathered:
+ Condition
+ Condition
+ Action
+ Action
+ if(dataID==0)
+ Delete ExampleTask2
+ if(dataID==1)
+ Allow the processing of DataValue Member
+ if(DataValue==0)
+ Increase the Priority of ExampleTask2 by 2 from the value given to it at
+ creation
+ if(DataValue==1)
+ Decrease the Priority of ExampleTask2 ifif previously increased
+ if(DataValue==2)
+ Delete ExampleTask2
+ At every evaluation, add a print statement to print out dataID
+ dataID and DataValue
+ DataValue
