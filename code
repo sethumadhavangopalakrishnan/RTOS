@@ -1,0 +1,75 @@
+#include <stdio.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/queue.h"
+
+typedef struct {
+    uint8_t dataID;
+    int32_t DataValue;
+} Data_t;
+
+QueueHandle_t Queue1;
+TaskHandle_t TaskHandle_1;
+TaskHandle_t TaskHandle_2;
+
+uint8_t G_DataID = 1;
+int32_t G_DataValue = 0;
+
+void ExampleTask1(void *pvParameters) {
+    TickType_t xLastWakeTime = xTaskGetTickCount();
+    const TickType_t xFrequency = pdMS_TO_TICKS(500);
+    Data_t data;
+
+    while (1) {
+        data.dataID = G_DataID;
+        data.DataValue = G_DataValue;
+
+        xQueueSend(Queue1, &data, portMAX_DELAY);
+        vTaskDelayUntil(&xLastWakeTime, xFrequency);
+    }
+}
+
+void ExampleTask2(void *pvParameters) {
+    Data_t receivedData;
+    UBaseType_t basePriority = uxTaskPriorityGet(NULL);
+    bool priorityIncreased = false;
+
+    while (1) {
+        if (xQueueReceive(Queue1, &receivedData, portMAX_DELAY) == pdTRUE) {
+            printf("Received: dataID=%d, DataValue=%ld\n", receivedData.dataID, receivedData.DataValue);
+
+            if (receivedData.dataID == 0) {
+                vTaskDelete(NULL);
+            } else if (receivedData.dataID == 1) {
+                switch (receivedData.DataValue) {
+                    case 0:
+                        if (!priorityIncreased) {
+                            vTaskPrioritySet(NULL, basePriority + 2);
+                            priorityIncreased = true;
+                        }
+                        break;
+                    case 1:
+                        if (priorityIncreased) {
+                            vTaskPrioritySet(NULL, basePriority);
+                            priorityIncreased = false;
+                        }
+                        break;
+                    case 2:
+                        vTaskDelete(NULL);
+                        break;
+                }
+            }
+        }
+    }
+}
+
+void app_main() {
+    Queue1 = xQueueCreate(5, sizeof(Data_t));
+    if (Queue1 == NULL) {
+        printf("Queue creation failed!\n");
+        return;
+    }
+
+    xTaskCreate(ExampleTask1, "SenderTask", 2048, NULL, 2, &TaskHandle_1);
+    xTaskCreate(ExampleTask2, "ReceiverTask", 2048, NULL, 1, &TaskHandle_2);
+}
